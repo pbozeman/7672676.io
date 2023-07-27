@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+
+<!-- A love letter to when the internet was weird... -->
+
+<head>
+  <!-- favicon -->
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+  <meta name="theme-color" content="#ffffff">
+
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+  <title>POP-CORN</title>
+
+  <style>
+    body,
+    html {
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    body {
+      background-image: url("images/barbe-frame.jpg");
+      background-size: 52%;
+      background-repeat: repeat;
+      background-position: center;
+      height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
+
+    .dial-image {
+      max-width: 77%;
+      max-height: 90vh;
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <script>
+    // The full audio is supposed to take 7 seconds to play, and setting this
+    // 3 is right when everthing is local, but mobile + internet is much more
+    // variable, and in my ad-hoc tests, 2 seemed better.
+    //
+    // TODO: dynamically compute this based on actual wallclock time
+    const startSecond = 2;
+
+    //
+    // Prefetch media
+    //
+    function addPrefetchLink(href) {
+      const link = document.createElement('link');
+      link.rel = 'prefetch';
+      link.href = href;
+      document.head.appendChild(link);
+    }
+
+    window.addEventListener('load', () => {
+      addPrefetchLink('sounds/ring.wav');
+      addPrefetchLink('sounds/at_the_tone.wav');
+      addPrefetchLink('sounds/exactly.wav');
+      addPrefetchLink('sounds/oclock.wav');
+
+      // prefetch hours
+      for (let i = 1; i <= 12; i++) {
+        addPrefetchLink('sounds/' + i.toString().padStart(2, '0') + 'h.wav')
+      }
+
+      // prefetch minuts
+      for (let i = 1; i <= 59; i++) {
+        addPrefetchLink('sounds/' + i.toString().padStart(2, '0') + '.wav')
+      }
+
+      // prefetch seconds
+      for (let i = 10; i <= 50; i += 10) {
+        addPrefetchLink('sounds/and_' + i.toString() + 's.wav');
+      }
+    });
+
+    //
+    // We have to use a single audio player and swap out the source when changing
+    // media, otherwise iOS won't continue to play audio.
+    //
+    // See: http://debuggerdotbreak.judahgabriel.com/2016/12/13/its-almost-2017-and-html5-audio-is-still-broken-on-ios/
+    // Follow up: its 2023 and apparently html5 audo is still "broken" on iOS.
+    // As a side note, "Chavah Messianic Radio חוה music for Yeshua's disciples"
+    // isn't my jam, but I love that it exists.
+    //
+    const audio = new Audio();
+    let currentIndex = 0;
+    let filesToPlay = [];
+
+    //
+    // Wait until the next ones digit second, e.g. 1 is 11, 21, etc.
+    // 2 is 12, 22, etc.
+    //
+    function timeUntilSecond(sec) {
+      const current = new Date();
+      let seconds = sec - (current.getSeconds() % 10);
+      seconds = seconds <= 0 ? seconds + 10 : seconds;
+      const later = new Date(current.getTime() + seconds * 1000);
+      later.setMilliseconds(0);
+
+      const diff = later - current;
+      if (diff < 0) {
+        diff = 0
+      }
+
+      return diff;
+    }
+
+    //
+    // Start the dial out ringing loop
+    //
+    function startRinging() {
+      function playRing() {
+        // Catch because we will likely cancel the play, which casues
+        // an error
+        audio.currentTime = 0;
+        audio.load();
+        audio.play().catch(function () { });
+      }
+
+      audio.src = 'sounds/ring.wav'
+      audio.load();
+      audio.addEventListener("ended", playRing)
+      playRing();
+
+      let ringUntilSecond = startSecond - 2;
+      if (ringUntilSecond < 0) {
+        ringUntilSecond = ringUntilSecond + 10;
+      }
+      setTimeout(() => {
+        audio.pause();
+        audio.removeEventListener("ended", playRing)
+        waitForJane();
+      }, timeUntilSecond(ringUntilSecond));
+    }
+
+    //
+    // Play the all the sounds
+    //
+    function playSounds() {
+      currentIndex = 0;
+      audio.addEventListener("ended", playNextFile);
+
+      function playFiles() {
+        if (currentIndex < filesToPlay.length) {
+          audio.src = filesToPlay[currentIndex];
+          audio.pause();
+          audio.load();
+          audio.play();
+        } else {
+          audio.removeEventListener("ended", playNextFile);
+          setTimeout(beJane, timeUntilSecond(startSecond));
+        }
+      }
+
+      function playNextFile() {
+        currentIndex++;
+        playFiles();
+      }
+
+      playFiles();
+    }
+
+    //
+    // Compute the audichron urls.
+    //
+    function getTimeUrls() {
+      const current = new Date();
+      current.setTime(new Date().getTime() + (10 - startSecond) * 1000);
+
+      let hour = current.getHours();
+      hour = hour % 12;
+      hour = hour === 0 ? 12 : hour;
+      const hour_str = "sounds/" + hour.toString().padStart(2, '0') + "h.wav"
+
+      const minute = current.getMinutes();
+      const minute_str = "sounds/" + (minute === 0 ? "oclock" : minute.toString().padStart(2, '0')) + ".wav"
+
+      const second = Math.ceil(current.getSeconds() / 10) * 10;
+      const second_str = "sounds/" + (second === 0 ? "exactly" : "and_" + second.toString().padStart(2, '0') + "s") + ".wav"
+
+      return ["sounds/at_the_tone.wav", hour_str, minute_str, second_str];
+    }
+
+    //
+    // Start the Jane Barbe timer
+    //
+    function waitForJane() {
+      let waitUntilSecond = startSecond - 1;
+      if (waitUntilSecond < 0) {
+        waitUntilSecond = waitUntilSecond + 10;
+      }
+      setTimeout(beJane, timeUntilSecond(waitUntilSecond));
+    }
+
+    //
+    // Be Jane
+    //
+    function beJane() {
+      filesToPlay = getTimeUrls();
+      playSounds();
+    }
+
+    //
+    // Phone pressed
+    //
+    let started = false;
+    function phonePressed() {
+      if (!started) {
+        started = true;
+        startRinging();
+      } else {
+        location.reload();
+      }
+    }
+  </script>
+  <img src="images/phone.png" alt="phone that says click me" onclick="phonePressed()" class="dial-image">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+    integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
+    crossorigin="anonymous"></script>
+</body>
+
+</html>
