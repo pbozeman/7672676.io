@@ -23,6 +23,7 @@
 
   <title>POP-CORN</title>
 
+  <!-- Who needs a seperate css file.. pfffft -->
   <style>
     body {
       background-image: url("images/barbe-frame.jpg");
@@ -89,6 +90,58 @@
   </div>
 
   <script>
+    // Why use js build tools when you can just throw all the js into
+    // the index.html script section manually ;)
+
+    //
+    // Timeout managment
+    //
+    let timeoutId = 0;
+    function setCancelableTimeout(func, ms) {
+      timeoutId = setTimeout(function () {
+        timeoutId = 0;
+        func();
+      },ms)
+    }
+
+    function cancelTimeout() {
+      clearTimeout(timeoutId);
+    }
+
+    //
+    // Event listener managment
+    //
+
+    // Key is the orig function, value is the new cb
+    const endedListenersMap = new Map();
+
+    function addEndedListener(audio, func) {
+      function wrapped() {
+        func()
+      }
+
+      endedListenersMap.set(func, wrapped);
+      audio.addEventListener("ended", wrapped);
+    }
+
+    function removeEndedListener(audio, func) {
+      wrapped = endedListenersMap.get(func);
+      if (wrapped) {
+        endedListenersMap.delete(func);
+        audio.removeEventListener("ended", wrapped);
+      }
+    }
+
+    function removeAllEndedListeners(audio) {
+      for (const [key, value] of endedListenersMap) {
+        audio.removeEventListener("ended", value)
+      }
+      endedListenersMap.clear();
+    }
+
+    //
+    // Container height managment
+    //
     function setContainerHeight() {
       const navbarHeight = document.querySelector('.navbar').offsetHeight;
       const viewportHeight = window.innerHeight;
@@ -142,26 +195,18 @@
     // Start the dial out ringing loop
     //
     function startRinging() {
-      function playRing() {
-        // Catch because we will likely cancel the play, which casues
-        // an error
-        audio.currentTime = 0;
-        audio.load();
-        audio.play().catch(function () { });
-      }
-
       audio.src = 'sounds/ring.wav'
+      audio.pause();
       audio.load();
-      audio.addEventListener("ended", playRing)
-      playRing();
+      audio.loop = true;
+      audio.play(); //.catch(function () { });
 
       let ringUntilSecond = startSecond - 2;
       if (ringUntilSecond < 0) {
         ringUntilSecond = ringUntilSecond + 10;
       }
-      setTimeout(() => {
+      setCancelableTimeout(() => {
         audio.pause();
-        audio.removeEventListener("ended", playRing)
         waitForJane();
       }, timeUntilSecond(ringUntilSecond));
     }
@@ -171,26 +216,24 @@
     //
     function playSounds() {
       currentIndex = 0;
-      audio.addEventListener("ended", playNextFile);
+      audio.loop = false;
 
-      function playFiles() {
+      function playNext() {
         if (currentIndex < filesToPlay.length) {
+          if (currentIndex == 0) {
+            addEndedListener(audio, playNext);
+          }
           audio.src = filesToPlay[currentIndex];
-          audio.pause();
           audio.load();
           audio.play();
+          currentIndex++;
         } else {
-          audio.removeEventListener("ended", playNextFile);
-          setTimeout(beJane, timeUntilSecond(startSecond));
+          removeEndedListener(audio, playNext);
+          setCancelableTimeout(beJane, timeUntilSecond(startSecond));
         }
       }
 
-      function playNextFile() {
-        currentIndex++;
-        playFiles();
-      }
-
-      playFiles();
+      playNext();
     }
 
     //
@@ -209,7 +252,10 @@
       const minute_str = "sounds/" + (minute === 0 ? "oclock" : minute.toString().padStart(2, '0')) + ".wav"
 
       const second = Math.ceil(current.getSeconds() / 10) * 10;
-      const second_str = "sounds/" + (second === 0 ? "exactly" : "and_" + second.toString().padStart(2, '0') + "s") + ".wav"
+      if (second == 60) {
+        second = 0;
+      }
+      const second_str = "sounds/" + (second == 0 ? "exactly" : "and_" + second.toString().padStart(2, '0') + "s") + ".wav"
 
       return ["sounds/at_the_tone.wav", hour_str, minute_str, second_str];
     }
@@ -222,7 +268,7 @@
       if (waitUntilSecond < 0) {
         waitUntilSecond = waitUntilSecond + 10;
       }
-      setTimeout(beJane, timeUntilSecond(waitUntilSecond));
+      setCancelableTimeout(beJane, timeUntilSecond(waitUntilSecond));
     }
 
     //
@@ -242,7 +288,10 @@
         started = true;
         startRinging();
       } else {
-        location.reload();
+        started = false;
+        removeAllEndedListeners(audio);
+        cancelTimeout();
+        audio.pause();
       }
     }
   </script>
