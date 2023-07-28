@@ -90,8 +90,12 @@
   </div>
 
   <script>
-    // Why use js build tools when you can just throw all the js into
-    // the index.html script section manually ;)
+    // Load service worker for sound cache
+    window.addEventListener("load", () => {
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/sw.js");
+      }
+    });
 
     //
     // Timeout managment
@@ -240,6 +244,7 @@
     // Compute the audichron urls.
     //
     function getTimeUrls() {
+      console.log("URLS");
       const current = new Date();
       current.setTime(new Date().getTime() + (10 - startSecond) * 1000);
 
@@ -251,7 +256,7 @@
       const minute = current.getMinutes();
       const minute_str = "sounds/" + (minute === 0 ? "oclock" : minute.toString().padStart(2, '0')) + ".wav"
 
-      const second = Math.ceil(current.getSeconds() / 10) * 10;
+      let second = Math.ceil(current.getSeconds() / 10) * 10;
       if (second == 60) {
         second = 0;
       }
