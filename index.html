@@ -18,15 +18,24 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
+  <!-- Fonts -->
+  <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Special+Elite" />
+
   <title>POP-CORN</title>
 
   <style>
-    body,
-    html {
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+    .navbar {
+      background: linear-gradient(rgba(240, 246, 237, 0.8), rgba(240, 246, 237, 0.3));
+      align-items: flex-start;
+    }
+
+    .nav-link {
+      padding: 2px;
+      color: rgb(0, 0, 0);
+      font-family: 'Special Elite';
+      font-style: 'bold';
+      font-size: 30px;
+      text-decoration: underline;
     }
 
     body {
@@ -39,6 +48,12 @@
       padding: 0;
     }
 
+    .container-remaining-height {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     .dial-image {
       max-width: 77%;
       max-height: 90vh;
@@ -48,7 +63,25 @@
 </head>
 
 <body>
+  <nav class="navbar navbar-dark">
+    <a class="nav-item nav-link active" href="#">About</a>
+  </nav>
+
+  <div class="container-remaining-height" id="dynamic-container">
+    <img src="images/phone.png" alt="phone that says click me" onclick="phonePressed()" class="dial-image">
+  </div>
+
   <script>
+    function setContainerHeight() {
+      const navbarHeight = document.querySelector('.navbar').offsetHeight;
+      const viewportHeight = window.innerHeight;
+      const containerHeight = viewportHeight - navbarHeight;
+      document.getElementById('dynamic-container').style.minHeight = containerHeight + 'px';
+    }
+
+    setContainerHeight();
+    window.addEventListener('resize', setContainerHeight);
+
     // The full audio is supposed to take 7 seconds to play, and setting this
     // 3 is right when everthing is local, but mobile + internet is much more
     // variable, and in my ad-hoc tests, 2 seemed better.
@@ -228,7 +261,7 @@
       }
     }
   </script>
-  <img src="images/phone.png" alt="phone that says click me" onclick="phonePressed()" class="dial-image">
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
     integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF"
     crossorigin="anonymous"></script>
