@@ -98,6 +98,41 @@
     });
 
     //
+    // Prefetch media
+    //
+    // This isn't supported by safari, but it is by chrome.
+    //
+    function addPrefetchLink(href) {
+      const link = document.createElement('link');
+      link.rel = 'prefetch';
+      link.href = href;
+      document.head.appendChild(link);
+    }
+
+    window.addEventListener('load', () => {
+      addPrefetchLink('sounds/ring.wav');
+      addPrefetchLink('sounds/at_the_tone.wav');
+      addPrefetchLink('sounds/exactly.wav');
+      addPrefetchLink('sounds/oclock.wav');
+
+      // prefetch hours
+      for (let i = 1; i <= 12; i++) {
+        addPrefetchLink('sounds/' + i.toString().padStart(2, '0') + 'h.wav')
+      }
+
+      // prefetch minuts
+      for (let i = 1; i <= 59; i++) {
+        addPrefetchLink('sounds/' + i.toString().padStart(2, '0') + '.wav')
+      }
+
+      // prefetch seconds
+      for (let i = 10; i <= 50; i += 10) {
+        addPrefetchLink('sounds/and_' + i.toString() + 's.wav');
+      }
+    });
+
+
+    //
     // Timeout managment
     //
     let timeoutId = 0;
