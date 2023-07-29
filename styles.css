@@ -1,0 +1,48 @@
+body {
+  background-image: url("images/barbe-frame.jpg");
+  background-size: 52%;
+  background-repeat: repeat;
+  background-position: center;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar {
+  display: flex !important;
+  flex-wrap: nowrap;
+  padding: 0;
+  background: linear-gradient(to bottom, rgba(243, 247, 241, 1), rgba(243,247,241, 1) 60%, rgba(243,247,241, 1) 100%);
+}
+
+.navbar-nav {
+  flex-direction: row;
+  gap: 20px;
+}
+
+.nav-link {
+  padding: 0;
+  color: rgb(0, 0, 0);
+  font-family: 'Special Elite', monospace;
+  font-style: 'bold';
+  font-size: 18;
+  text-decoration: underline;
+  text-shadow: 7px 7px 9px rgba(243,247,241, 1);
+}
+
+.nav-link:first-child {
+  margin-left: 20px;
+}
+
+.container-remaining-height {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dial-image {
+  max-width: 77%;
+  max-height: 80vh;
+  display: block;
+  cursor: pointer;
+}
