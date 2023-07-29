@@ -1,7 +1,15 @@
 <!doctype html>
+
 <html lang="en">
 
 <!-- A love letter to when the internet was weird... -->
+
+<!--
+   Also, the last time I did hands on webdev was the early 90s, pre-css, when
+   layouts were done with tables (gasp) and dynamic pages were done with webcgi.
+   So, a) be gentle with me re the quality of this, and b) I'm open to constructive
+   feedback.
+-->
 
 <head>
   <!-- favicon -->
@@ -100,37 +108,45 @@
     //
     // Prefetch media
     //
-    // This isn't supported by safari, but it is by chrome.
-    //
-    function addPrefetchLink(href) {
-      const link = document.createElement('link');
-      link.rel = 'prefetch';
-      link.href = href;
-      document.head.appendChild(link);
-    }
+    function prefetchAudio() {
+      // This used to use link red=prefetch in the head, but that
+      // isn't supported by safari.
+      let prefetchRefs = new Array();
 
-    window.addEventListener('load', () => {
-      addPrefetchLink('sounds/ring.wav');
-      addPrefetchLink('sounds/at_the_tone.wav');
-      addPrefetchLink('sounds/exactly.wav');
-      addPrefetchLink('sounds/oclock.wav');
+      prefetchRefs.push('sounds/ring.wav');
+      prefetchRefs.push('sounds/at_the_tone.wav');
+      prefetchRefs.push('sounds/exactly.wav');
+      prefetchRefs.push('sounds/oclock.wav');
 
       // prefetch hours
       for (let i = 1; i <= 12; i++) {
-        addPrefetchLink('sounds/' + i.toString().padStart(2, '0') + 'h.wav')
+        prefetchRefs.push('sounds/' + i.toString().padStart(2, '0') + 'h.wav')
       }
 
       // prefetch minuts
       for (let i = 1; i <= 59; i++) {
-        addPrefetchLink('sounds/' + i.toString().padStart(2, '0') + '.wav')
+        prefetchRefs.push('sounds/' + i.toString().padStart(2, '0') + '.wav')
       }
 
       // prefetch seconds
       for (let i = 10; i <= 50; i += 10) {
-        addPrefetchLink('sounds/and_' + i.toString() + 's.wav');
+        prefetchRefs.push('sounds/and_' + i.toString() + 's.wav');
       }
-    });
 
+      let currentIndex = 0;
+      const audio = new Audio();
+      audio.addEventListener("canplaythrough", loadNext);
+
+      function loadNext() {
+        if (currentIndex < prefetchRefs.length) {
+          audio.src = prefetchRefs[currentIndex];
+          audio.load();
+          currentIndex++;
+        }
+      }
+
+      loadNext();
+    }
 
     //
     // Timeout managment
@@ -208,23 +224,25 @@
     // isn't my jam, but I love that it exists.
     //
     const audio = new Audio();
-    let currentIndex = 0;
-    let filesToPlay = [];
 
     //
     // Wait until the next ones digit second, e.g. 1 is 11, 21, etc.
     // 2 is 12, 22, etc.
     //
-    function timeUntilSecond(sec) {
+    function timeUntilSecond(sec, minSec = 0) {
       const current = new Date();
       let seconds = sec - (current.getSeconds() % 10);
       seconds = seconds <= 0 ? seconds + 10 : seconds;
       const later = new Date(current.getTime() + seconds * 1000);
       later.setMilliseconds(0);
 
-      const diff = later - current;
+      let diff = later - current;
       if (diff < 0) {
         diff = 0
+      }
+
+      if (diff < minSec * 1000) {
+        diff += 10 * 1000;
       }
 
       return diff;
@@ -234,11 +252,15 @@
     // Start the dial out ringing loop
     //
     function startRinging() {
+      prefetchAudio();
+
       audio.src = 'sounds/ring.wav'
       audio.pause();
       audio.load();
       audio.loop = true;
-      audio.play(); //.catch(function () { });
+
+      // catch because we may pause, and that throws an error
+      audio.play().catch(function () { });
 
       let ringUntilSecond = startSecond - 2;
       if (ringUntilSecond < 0) {
@@ -247,14 +269,14 @@
       setCancelableTimeout(() => {
         audio.pause();
         waitForJane();
-      }, timeUntilSecond(ringUntilSecond));
+      }, timeUntilSecond(ringUntilSecond, 5));
     }
 
     //
     // Play the all the sounds
     //
-    function playSounds() {
-      currentIndex = 0;
+    function playSounds(filesToPlay) {
+      let currentIndex = 0;
       audio.loop = false;
 
       function playNext() {
@@ -264,7 +286,8 @@
           }
           audio.src = filesToPlay[currentIndex];
           audio.load();
-          audio.play();
+          // catch because we may pause, and that throws an error
+          audio.play().catch(function () { });
           currentIndex++;
         } else {
           removeEndedListener(audio, playNext);
@@ -279,7 +302,6 @@
     // Compute the audichron urls.
     //
     function getTimeUrls() {
-      console.log("URLS");
       const current = new Date();
       current.setTime(new Date().getTime() + (10 - startSecond) * 1000);
 
@@ -315,8 +337,8 @@
     // Be Jane
     //
     function beJane() {
-      filesToPlay = getTimeUrls();
-      playSounds();
+      const filesToPlay = getTimeUrls();
+      playSounds(filesToPlay);
     }
 
     //
