@@ -353,12 +353,24 @@
         started = true;
         startRinging();
       } else {
-        started = false;
-        removeAllEndedListeners(audio);
-        cancelTimeout();
-        audio.pause();
+        stop();
       }
     }
+
+    function stop() {
+      started = false;
+      removeAllEndedListeners(audio);
+      cancelTimeout();
+      audio.pause();
+    }
+
+    // Stop on loss of visability.  This is especially desirable on mobile.
+    // We aren't a music player.
+    document.addEventListener('visibilitychange', function (){
+      if (document.hidden) {
+        stop();
+      }
+    });
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
