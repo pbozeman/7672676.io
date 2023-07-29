@@ -118,19 +118,22 @@
       prefetchRefs.push('sounds/exactly.wav');
       prefetchRefs.push('sounds/oclock.wav');
 
+      // prefetch seconds
+      for (let i = 10; i <= 50; i += 10) {
+        prefetchRefs.push('sounds/and_' + i.toString() + 's.wav');
+      }
+
+      // TODO: it would be better to calculate out the next few minutes and just
+      // prefetch that/those hour(s) and minutes.
+
       // prefetch hours
       for (let i = 1; i <= 12; i++) {
         prefetchRefs.push('sounds/' + i.toString().padStart(2, '0') + 'h.wav')
       }
 
-      // prefetch minuts
+      // prefetch minutes
       for (let i = 1; i <= 59; i++) {
         prefetchRefs.push('sounds/' + i.toString().padStart(2, '0') + '.wav')
-      }
-
-      // prefetch seconds
-      for (let i = 10; i <= 50; i += 10) {
-        prefetchRefs.push('sounds/and_' + i.toString() + 's.wav');
       }
 
       let currentIndex = 0;
