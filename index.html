@@ -28,20 +28,29 @@
   <!-- Fonts -->
   <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Special+Elite" />
 
+  <!-- Styles --->
   <link rel="stylesheet" href="styles.css">
+
   <title>POP-CORN</title>
 </head>
 
 <body>
   <nav class="navbar">
-    <div class="navbar-nav me-auto">
-        <a class="nav-link" href="#">home</a>
-        <a class="nav-link" href="#">history</a>
-        <a class="nav-link" href="#">source</a>
+    <div class="container-fluid">
+      <div class="navbar-nav me-auto">
+        <a class="nav-link" href="/">home</a>
+        <a class="nav-link" href="/history.html">history</a>
+        <a class="nav-link" href="/links.html">links</a>
+      </div>
+
+      <div class="navbar-nav ms-auto">
+        <a class="nav-link" href="https://google.com">pbozeman.dev</a>
+        <a class="nav-link" href="https://github.com/pbozeman/7672676.io">src</a>
+      </div>
     </div>
   </nav>
 
-  <div class="container-remaining-height" id="dynamic-container">
+  <div class="phone-container" id="dynamic-container">
     <img src="images/phone.png" alt="phone that says click me" onclick="phonePressed()" class="dial-image">
   </div>
 
@@ -107,7 +116,7 @@
       timeoutId = setTimeout(function () {
         timeoutId = 0;
         func();
-      },ms)
+      }, ms)
     }
 
     function cancelTimeout() {
@@ -314,7 +323,7 @@
 
     // Stop on loss of visability.  This is especially desirable on mobile.
     // We aren't a music player.
-    document.addEventListener('visibilitychange', function (){
+    document.addEventListener('visibilitychange', function () {
       if (document.hidden) {
         stop();
       }
