@@ -51,10 +51,27 @@
   </nav>
 
   <div class="phone-container" id="dynamic-container">
-    <img src="images/phone.png" alt="phone that says click me" onclick="phonePressed()" class="dial-image">
+    <picture class="centered-picture">
+      <source srcset="images/phone.webp" type="image/webp">
+         <img src="images/phone.webp" alt="phone that says click me" onclick="phonePressed()" class="image-fluid dial-image">
+    </picture>
   </div>
 
   <script>
+    // Load the background image, using webp for browsers that support it
+    document.addEventListener('DOMContentLoaded', function() {
+      const img = new Image();
+
+      img.onload = function() {
+        document.getElementById('dynamic-container').style.backgroundImage = 'url("images/barbe-frame.webp")';
+      };
+      img.onerror = function() {
+        document.getElementById('dynamic-container').style.backgroundImage = 'url("images/barbe-frame.jpg")';
+      };
+
+      img.src = 'images/barbe-frame.webp'
+    });
+
     // Load service worker for sound cache
     window.addEventListener("load", () => {
       if ("serviceWorker" in navigator) {

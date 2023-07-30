@@ -41,10 +41,15 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-image: url("images/barbe-frame.jpg");
   background-size: 52%;
   background-repeat: repeat;
   background-position: center;
+}
+
+.centered-picture {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .dial-image {
