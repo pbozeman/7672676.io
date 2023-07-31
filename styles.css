@@ -1,3 +1,7 @@
+html {
+  font-size: 1.25rem;
+}
+
 body {
   height: 100vh;
   margin: 0;
@@ -21,7 +25,7 @@ body {
   color: rgb(0, 0, 0);
   font-family: 'Special Elite', monospace;
   font-style: 'bold';
-  font-size: 18;
+  font-size: 18px;
   text-decoration: underline;
 }
 
@@ -57,4 +61,43 @@ body {
   max-height: 80vh;
   display: block;
   cursor: pointer;
+}
+
+.masthead {
+  position: relative;
+  margin-bottom: 4rem;
+  padding-top: calc(8rem + 57px);
+  padding-bottom: 8rem;
+  background: no-repeat center center;
+  background-color: #6c757d;
+  background-size: cover;
+  background-attachment: scroll;
+}
+
+.post-heading {
+  color: rgb(255, 255, 255);
+  text-shadow: 2px 2px #000000;
+}
+
+.content p {
+  font-family: georgia, "times new roman", times, serif;
+}
+
+.captioned {
+  margin: 1.5rem 0;
+}
+
+q {
+  font-style: italic;
+}
+
+blockquote {
+  font-style: italic;
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  color: #6c757d;
+}
+
+.blockquote > :last-child {
+  margin-bottom: 0;
 }

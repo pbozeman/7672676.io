@@ -126,7 +126,7 @@
     }
 
     //
-    // Timeout managment
+    // Timeout management
     //
     let timeoutId = 0;
     function setCancelableTimeout(func, ms) {
@@ -141,7 +141,7 @@
     }
 
     //
-    // Event listener managment
+    // Event listener management
     //
 
     // Key is the orig function, value is the new cb
@@ -172,7 +172,7 @@
     }
 
     //
-    // Container height managment
+    // Container height management
     //
     function setContainerHeight() {
       const navbarHeight = document.querySelector('.navbar').offsetHeight;
@@ -185,7 +185,7 @@
     window.addEventListener('resize', setContainerHeight);
 
     // The full audio is supposed to take 7 seconds to play, and setting this
-    // 3 is right when everthing is local, but mobile + internet is much more
+    // 3 is right when everything is local, but mobile + internet is much more
     // variable, and in my ad-hoc tests, 2 seemed better.
     //
     // TODO: dynamically compute this based on actual wallclock time
@@ -196,7 +196,7 @@
     // media, otherwise iOS won't continue to play audio.
     //
     // See: http://debuggerdotbreak.judahgabriel.com/2016/12/13/its-almost-2017-and-html5-audio-is-still-broken-on-ios/
-    // Follow up: its 2023 and apparently html5 audo is still "broken" on iOS.
+    // Follow up: its 2023 and apparently html5 audio is still "broken" on iOS.
     // As a side note, "Chavah Messianic Radio חוה music for Yeshua's disciples"
     // isn't my jam, but I love that it exists.
     //
@@ -338,7 +338,7 @@
       audio.pause();
     }
 
-    // Stop on loss of visability.  This is especially desirable on mobile.
+    // Stop on loss of visibility.  This is especially desirable on mobile.
     // We aren't a music player.
     document.addEventListener('visibilitychange', function () {
       if (document.hidden) {
