@@ -36,10 +36,6 @@ body {
   margin-right: 10px;
 }
 
-.container {
-  margin: 20px;
-}
-
 .phone-container {
   display: flex;
   align-items: center;
