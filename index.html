@@ -283,15 +283,30 @@
       let hour = current.getHours();
       hour = hour % 12;
       hour = hour === 0 ? 12 : hour;
-      const hour_str = "sounds/" + hour.toString().padStart(2, '0') + "h.wav"
 
-      const minute = current.getMinutes();
-      const minute_str = "sounds/" + (minute === 0 ? "oclock" : minute.toString().padStart(2, '0')) + ".wav"
-
+      let minute = current.getMinutes();
       let second = Math.ceil(current.getSeconds() / 10) * 10;
+
+      // Our wakeup isn't as well controlled in the browser as it was in
+      // the embedded version and we can wake up at a time that makes
+      // the time calcs get wonky.  There is probably a better fix,
+      // but this is good enough for now.
       if (second == 60) {
+        minute += 1;
         second = 0;
       }
+
+      if (minute == 60) {
+        hour += 1;
+        minute = 0;
+      }
+
+      if (hour == 13) {
+        hour = 1;
+      }
+
+      const hour_str = "sounds/" + hour.toString().padStart(2, '0') + "h.wav"
+      const minute_str = "sounds/" + (minute === 0 ? "oclock" : minute.toString().padStart(2, '0')) + ".wav"
       const second_str = "sounds/" + (second == 0 ? "exactly" : "and_" + second.toString().padStart(2, '0') + "s") + ".wav"
 
       return ["sounds/at_the_tone.wav", hour_str, minute_str, second_str];
